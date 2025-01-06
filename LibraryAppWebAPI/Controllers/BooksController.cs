@@ -81,7 +81,7 @@ namespace LibraryAppWebAPI.Controllers
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBook", new { id = book.BookID }, book);
+            return CreatedAtAction(nameof(GetBook), new { id = book.BookID }, book);
         }
 
         // DELETE: api/Books/5

@@ -1,12 +1,9 @@
 ﻿namespace LibraryAppWebAPI.Models
 {
-    public class Author
+    public class AuthorDTO
     {
-        public required int AuthorID { get; set; }
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
         public required List<Book> Books { get; set; }
-
-        //public required List<Book> Books { get; } = new();
     }
 }

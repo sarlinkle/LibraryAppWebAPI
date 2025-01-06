@@ -1,5 +1,6 @@
 
 using LibraryAppWebAPI.Data;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryAppWebAPI
@@ -8,35 +9,36 @@ namespace LibraryAppWebAPI
     {
         public static void Main(string[] args)
         {
-
-
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddControllers().AddJsonOptions(options =>
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-            builder.Services.AddControllers();
+            //var contextOptions = new DbContextOptionsBuilder<LibraryDbContext>()
+            //    .UseSqlServer(builder.Configuration.GetConnectionString("BooksDb"))
+            //    .Options;
 
-            var connectionString = @"Data Source=DESKTOP-ABU8NU1\SQLEXPRESS;Database=Blogs;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
+            builder.Services.AddDbContext<LibraryDbContext>(opt =>
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("BooksDb")));
 
-            builder.Services.AddDbContext<LibraryDbContext>(opt => opt.UseSqlServer(connectionString));
-
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                var db = scope.ServiceProvider.GetRequiredService<LibraryDbContext>();
+                db.Database.EnsureCreated();
+                db.Database.EnsureDeleted();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

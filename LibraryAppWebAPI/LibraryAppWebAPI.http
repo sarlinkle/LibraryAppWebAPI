@@ -1,6 +1,16 @@
-@LibraryAppWebAPI_HostAddress = http://localhost:5026
+@LibraryAppWebAPI_HostAddress = https://localhost:7145
 
 GET {{LibraryAppWebAPI_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+POST {{LibraryAppWebAPI_HostAddress}}/api/authors
+Content-Type: application/json
+
+{
+  //Author
+
+}
 
 ###
