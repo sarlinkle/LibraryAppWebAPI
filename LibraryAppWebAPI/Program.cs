@@ -2,6 +2,7 @@
 using LibraryAppWebAPI.Data;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace LibraryAppWebAPI
 {
@@ -14,12 +15,19 @@ namespace LibraryAppWebAPI
             builder.Services.AddControllers().AddJsonOptions(options =>
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-            //var contextOptions = new DbContextOptionsBuilder<LibraryDbContext>()
-            //    .UseSqlServer(builder.Configuration.GetConnectionString("BooksDb"))
-            //    .Options;
+            var connectionString = builder.Configuration.GetConnectionString("BooksDb");
+
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Azure")
+            {
+                var connectionBuilder = new SqlConnectionStringBuilder(connectionString)
+                {
+                    Password = builder.Configuration["DbPassword"]
+                };
+                connectionString = connectionBuilder.ConnectionString;
+            }
 
             builder.Services.AddDbContext<LibraryDbContext>(opt =>
-                opt.UseSqlServer(builder.Configuration.GetConnectionString("BooksDb")));
+                opt.UseSqlServer(connectionString));
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
