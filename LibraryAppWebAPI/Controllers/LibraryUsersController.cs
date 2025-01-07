@@ -81,7 +81,7 @@ namespace LibraryAppWebAPI.Controllers
             _context.LibraryUsers.Add(libraryUser);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetLibraryUser), new { id = libraryUser.LibraryUserID }, libraryUser);
+            return CreatedAtAction("GetLibraryUser", new { id = libraryUser.LibraryUserID }, libraryUser);
         }
 
         // DELETE: api/LibraryUsers/5

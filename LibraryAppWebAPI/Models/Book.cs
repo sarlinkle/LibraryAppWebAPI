@@ -7,9 +7,8 @@
         public required string ISBN { get; set; }
         public required string Year { get; set; }
         public required List<Author> Authors { get; set; }
-        public string? Rating { get; set; }
-        public required bool Available { get; set; }
-        public DateOnly? BorrowedDate { get; set; }
-        public DateOnly? ReturnDate { get; set; }
+
+        //public required int ShelfID { get; set; }
+        //public string? Rating { get; set; }
     }
 }

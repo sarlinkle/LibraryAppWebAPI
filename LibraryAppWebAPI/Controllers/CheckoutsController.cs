@@ -12,47 +12,47 @@ namespace LibraryAppWebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BooksController : ControllerBase
+    public class CheckoutsController : ControllerBase
     {
         private readonly LibraryDbContext _context;
 
-        public BooksController(LibraryDbContext context)
+        public CheckoutsController(LibraryDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Books
+        // GET: api/Checkouts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<Checkout>>> GetCheckout()
         {
-            return await _context.Books.ToListAsync();
+            return await _context.Checkout.ToListAsync();
         }
 
-        // GET: api/Books/5
+        // GET: api/Checkouts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+        public async Task<ActionResult<Checkout>> GetCheckout(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var checkout = await _context.Checkout.FindAsync(id);
 
-            if (book == null)
+            if (checkout == null)
             {
                 return NotFound();
             }
 
-            return book;
+            return checkout;
         }
 
-        // PUT: api/Books/5
+        // PUT: api/Checkouts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, Book book)
+        public async Task<IActionResult> PutCheckout(int id, Checkout checkout)
         {
-            if (id != book.BookID)
+            if (id != checkout.CheckoutID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(book).State = EntityState.Modified;
+            _context.Entry(checkout).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace LibraryAppWebAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!BookExists(id))
+                if (!CheckoutExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace LibraryAppWebAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Books
+        // POST: api/Checkouts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Book>> PostBook(Book book)
+        public async Task<ActionResult<Checkout>> PostCheckout(Checkout checkout)
         {
-            _context.Books.Add(book);
+            _context.Checkout.Add(checkout);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBook", new { id = book.BookID }, book);
+            return CreatedAtAction("GetCheckout", new { id = checkout.CheckoutID }, checkout);
         }
 
-        // DELETE: api/Books/5
+        // DELETE: api/Checkouts/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBook(int id)
+        public async Task<IActionResult> DeleteCheckout(int id)
         {
-            var book = await _context.Books.FindAsync(id);
-            if (book == null)
+            var checkout = await _context.Checkout.FindAsync(id);
+            if (checkout == null)
             {
                 return NotFound();
             }
 
-            _context.Books.Remove(book);
+            _context.Checkout.Remove(checkout);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool BookExists(int id)
+        private bool CheckoutExists(int id)
         {
-            return _context.Books.Any(e => e.BookID == id);
+            return _context.Checkout.Any(e => e.CheckoutID == id);
         }
     }
 }
