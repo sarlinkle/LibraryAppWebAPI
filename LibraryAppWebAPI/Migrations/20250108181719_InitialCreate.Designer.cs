@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryAppWebAPI.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    [Migration("20250106105218_InitialCreate")]
+    [Migration("20250108181719_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,26 +27,26 @@ namespace LibraryAppWebAPI.Migrations
 
             modelBuilder.Entity("AuthorBook", b =>
                 {
-                    b.Property<int>("AuthorsAuthorID")
+                    b.Property<int>("AuthorsId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BooksBookID")
+                    b.Property<int>("BooksId")
                         .HasColumnType("int");
 
-                    b.HasKey("AuthorsAuthorID", "BooksBookID");
+                    b.HasKey("AuthorsId", "BooksId");
 
-                    b.HasIndex("BooksBookID");
+                    b.HasIndex("BooksId");
 
                     b.ToTable("AuthorBook");
                 });
 
             modelBuilder.Entity("LibraryAppWebAPI.Models.Author", b =>
                 {
-                    b.Property<int>("AuthorID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuthorID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -56,60 +56,74 @@ namespace LibraryAppWebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("AuthorID");
+                    b.HasKey("Id");
 
                     b.ToTable("Authors");
                 });
 
             modelBuilder.Entity("LibraryAppWebAPI.Models.Book", b =>
                 {
-                    b.Property<int>("BookID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookID"));
-
-                    b.Property<bool>("Available")
-                        .HasColumnType("bit");
-
-                    b.Property<DateOnly?>("BorrowedDate")
-                        .HasColumnType("date");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ISBN")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LibraryUserID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Rating")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateOnly?>("ReturnDate")
+                    b.Property<DateOnly>("ReleaseYear")
                         .HasColumnType("date");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Year")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("BookID");
-
-                    b.HasIndex("LibraryUserID");
+                    b.HasKey("Id");
 
                     b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("LibraryAppWebAPI.Models.LibraryUser", b =>
+            modelBuilder.Entity("LibraryAppWebAPI.Models.Checkout", b =>
                 {
-                    b.Property<int>("LibraryUserID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LibraryUserID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateBorrowed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateReturned")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LibraryUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("LibraryUserId");
+
+                    b.ToTable("Checkouts");
+                });
+
+            modelBuilder.Entity("LibraryAppWebAPI.Models.LibraryUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -123,7 +137,7 @@ namespace LibraryAppWebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("LibraryUserID");
+                    b.HasKey("Id");
 
                     b.ToTable("LibraryUsers");
                 });
@@ -132,27 +146,39 @@ namespace LibraryAppWebAPI.Migrations
                 {
                     b.HasOne("LibraryAppWebAPI.Models.Author", null)
                         .WithMany()
-                        .HasForeignKey("AuthorsAuthorID")
+                        .HasForeignKey("AuthorsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("LibraryAppWebAPI.Models.Book", null)
                         .WithMany()
-                        .HasForeignKey("BooksBookID")
+                        .HasForeignKey("BooksId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("LibraryAppWebAPI.Models.Book", b =>
+            modelBuilder.Entity("LibraryAppWebAPI.Models.Checkout", b =>
                 {
-                    b.HasOne("LibraryAppWebAPI.Models.LibraryUser", null)
-                        .WithMany("BorrowedBooks")
-                        .HasForeignKey("LibraryUserID");
+                    b.HasOne("LibraryAppWebAPI.Models.Book", "Book")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LibraryAppWebAPI.Models.LibraryUser", "LibraryUser")
+                        .WithMany("Checkouts")
+                        .HasForeignKey("LibraryUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("LibraryUser");
                 });
 
             modelBuilder.Entity("LibraryAppWebAPI.Models.LibraryUser", b =>
                 {
-                    b.Navigation("BorrowedBooks");
+                    b.Navigation("Checkouts");
                 });
 #pragma warning restore 612, 618
         }

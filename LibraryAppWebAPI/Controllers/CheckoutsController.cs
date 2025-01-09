@@ -23,16 +23,16 @@ namespace LibraryAppWebAPI.Controllers
 
         // GET: api/Checkouts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Checkout>>> GetCheckout()
+        public async Task<ActionResult<IEnumerable<Checkout>>> GetCheckouts()
         {
-            return await _context.Checkout.ToListAsync();
+            return await _context.Checkouts.ToListAsync();
         }
 
         // GET: api/Checkouts/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Checkout>> GetCheckout(int id)
         {
-            var checkout = await _context.Checkout.FindAsync(id);
+            var checkout = await _context.Checkouts.FindAsync(id);
 
             if (checkout == null)
             {
@@ -47,7 +47,7 @@ namespace LibraryAppWebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCheckout(int id, Checkout checkout)
         {
-            if (id != checkout.CheckoutID)
+            if (id != checkout.Id)
             {
                 return BadRequest();
             }
@@ -78,23 +78,23 @@ namespace LibraryAppWebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Checkout>> PostCheckout(Checkout checkout)
         {
-            _context.Checkout.Add(checkout);
+            _context.Checkouts.Add(checkout);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCheckout", new { id = checkout.CheckoutID }, checkout);
+            return CreatedAtAction("GetCheckout", new { id = checkout.Id }, checkout);
         }
 
         // DELETE: api/Checkouts/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCheckout(int id)
         {
-            var checkout = await _context.Checkout.FindAsync(id);
+            var checkout = await _context.Checkouts.FindAsync(id);
             if (checkout == null)
             {
                 return NotFound();
             }
 
-            _context.Checkout.Remove(checkout);
+            _context.Checkouts.Remove(checkout);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace LibraryAppWebAPI.Controllers
 
         private bool CheckoutExists(int id)
         {
-            return _context.Checkout.Any(e => e.CheckoutID == id);
+            return _context.Checkouts.Any(e => e.Id == id);
         }
     }
 }

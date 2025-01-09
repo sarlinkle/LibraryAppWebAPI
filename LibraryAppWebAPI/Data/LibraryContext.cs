@@ -12,14 +12,10 @@ namespace LibraryAppWebAPI.Data
     : base(options)
         {
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            options.LogTo(msg => Debug.WriteLine(msg));
-        }
 
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<LibraryUser> LibraryUsers { get; set; }
-        public DbSet<LibraryAppWebAPI.Models.Checkout> Checkout { get; set; } = default!;
+        public DbSet<Checkout> Checkouts { get; set; }
     }
 }

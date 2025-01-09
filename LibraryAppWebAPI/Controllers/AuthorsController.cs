@@ -47,7 +47,7 @@ namespace LibraryAppWebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAuthor(int id, Author author)
         {
-            if (id != author.AuthorID)
+            if (id != author.Id)
             {
                 return BadRequest();
             }
@@ -81,7 +81,7 @@ namespace LibraryAppWebAPI.Controllers
             _context.Authors.Add(author);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAuthor", new { id = author.AuthorID }, author);
+            return CreatedAtAction("GetAuthor", new { id = author.Id }, author);
         }
 
         // DELETE: api/Authors/5
@@ -102,7 +102,7 @@ namespace LibraryAppWebAPI.Controllers
 
         private bool AuthorExists(int id)
         {
-            return _context.Authors.Any(e => e.AuthorID == id);
+            return _context.Authors.Any(e => e.Id == id);
         }
     }
 }
