@@ -39,13 +39,6 @@ namespace LibraryAppWebAPI
 
             var app = builder.Build();
 
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var db = scope.ServiceProvider.GetRequiredService<LibraryDbContext>();
-            //    db.Database.EnsureCreated();
-            //    db.Database.EnsureDeleted();
-            //}
-
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -56,9 +49,7 @@ namespace LibraryAppWebAPI
 
             app.UseAuthorization();
 
-            app.MapControllers();
-
-            app.CreateDbIfNotExists();
+            app.MapControllers();            
 
             app.Run();
         }

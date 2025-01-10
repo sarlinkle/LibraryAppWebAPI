@@ -42,6 +42,16 @@ namespace LibraryAppWebAPI.Controllers
             return author;
         }
 
+        // GET: api/Authors/q
+        [HttpGet("")]
+        public ActionResult<IEnumerable<Author>> SearchAuthor(string q)
+        {
+            var authors = _context.Authors.Where(a  =>  a.FirstName == q || a.LastName == q).OrderBy(a => a.FirstName).ToList();
+
+
+            return authors;
+        }
+
         // PUT: api/Authors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

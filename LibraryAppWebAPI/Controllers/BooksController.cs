@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LibraryAppWebAPI.Data;
 using LibraryAppWebAPI.Models;
+using LibraryAppWebAPI.DTOs;
 
 namespace LibraryAppWebAPI.Controllers
 {
@@ -23,29 +24,31 @@ namespace LibraryAppWebAPI.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<DisplayBookDTO>>> GetBooks()
         {
-            return await _context.Books.ToListAsync();
+            IEnumerable<Book> books = await _context.Books.ToListAsync();
+            var bookDTOs = books.Select(book => new DisplayBookDTO() { Title = book.Title, ReleaseDate = new DateOnly(), ISBN = book.ISBN, AuthorIds = [] }).ToList();
+            return bookDTOs;
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+        public async Task<ActionResult<DisplayBookDTO>> GetBook(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books.ToListAsync();
+            var bookDTO = book.Select(book => new DisplayBookDTO() { Title = book.Title, ReleaseDate = new DateOnly(), ISBN = book.ISBN, AuthorIds = [] }).Where(book.Id == id);
 
-            if (book == null)
+            if (bookDTO == null)
             {
                 return NotFound();
             }
 
-            return book;
+            return bookDTO;
         }
 
         // PUT: api/Books/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, Book book)
+        public async Task<IActionResult> PutBook(int id, CreateReturnDTO book)
         {
             if (id != book.Id)
             {
@@ -74,10 +77,11 @@ namespace LibraryAppWebAPI.Controllers
         }
 
         // POST: api/Books
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Book>> PostBook(Book book)
+        public async Task<ActionResult<Book>> PostBook(CreateBookDTO createBookDTO)
         {
+            var book = createBookDTO.ToBook();
+
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 

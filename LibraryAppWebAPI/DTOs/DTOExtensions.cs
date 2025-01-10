@@ -4,6 +4,12 @@ namespace LibraryAppWebAPI.DTOs
 {
     public static class DTOExtensions
     {
+
+        public static void SomeHTnig()
+        {
+            CreateBookDTO a = new CreateBookDTO();
+            a.ToBook()
+        }
         public static Book ToBook(this CreateBookDTO createBookDTO)
         {
             return new Book
@@ -11,20 +17,40 @@ namespace LibraryAppWebAPI.DTOs
                 Title = createBookDTO.Title,
                 ISBN = createBookDTO.ISBN,
                 ReleaseDate = new DateOnly(createBookDTO.ReleaseYear, 1, 1),
-                Authors = createBookDTO.Authors,
+                AuthorIds = createBookDTO.AuthorIds,
+                Rating = createBookDTO.Rating,
             };
         }
-        public static BookDTO ToBookDTO(this Book book)
+        public static Book ToBook(this DisplayBookDTO displayBookDTO)
         {
-            return new BookDTO
+            return new Book
             {
-                Id = book.Id,
-                Title = book.Title,
-                ISBN = book.ISBN,
-                ReleaseYear = book.ReleaseDate.Year,
-                Authors = book.Authors,
+                Title = displayBookDTO.Title,
+                ISBN = displayBookDTO.ISBN,
+                ReleaseDate = displayBookDTO.ReleaseDate,
+                AuthorIds = displayBookDTO.AuthorIds.ToList(), //Get author names
+                Rating = displayBookDTO.Rating,
             };
         }
+
+        //public static Book ToBook(this CreateCheckoutDTO createCheckoutDTO)
+        //{
+        //    return new Book
+        //    {
+        //        Id = borrowBookDTO.Id
+        //    };
+        //}
+        //public static CreateCheckoutDTO ToBookDTO(this Book book)
+        //{
+        //    return new CreateCheckoutDTO
+        //    {
+        //        Id = book.Id,
+        //        Title = book.Title,
+        //        ISBN = book.ISBN,
+        //        ReleaseYear = book.ReleaseDate.Year,
+        //        AuthorIds = book.AuthorIds,
+        //    };
+        //}
         //public static LibraryUser ToLibraryUser(this CreateLibraryUserDTO createLibraryUserDTO)
         //{
         //    return new LibraryUser
@@ -33,13 +59,21 @@ namespace LibraryAppWebAPI.DTOs
         //        LastName = createLibraryUserDTO.LastName,
         //    };
         //}
-        public static LibraryUserDTO ToLibraryUserDTO(this LibraryUser libraryUser)
+        public static LibraryUser ToLibraryUser(this CreateNewLibraryUserDTO newLibraryUserDTO)
+        {
+            return new LibraryUser
+            {
+                FirstName = newLibraryUserDTO.FirstName,
+                LastName = newLibraryUserDTO.LastName
+            };
+        }
+        public static LibraryUser ToLibraryUser(this DisplayLibraryUserDTO displayLibraryUserDTO)
         {
             return new LibraryUserDTO
             {
-                LibraryCardNumber = libraryUser.LibraryCardNumber,
-                FirstName = libraryUser.FirstName,
-                LastName = libraryUser.LastName
+                LibraryCardNumber = displayLibraryUserDTO.LibraryCardNumber,
+                FirstName = displayLibraryUserDTO.FirstName,
+                LastName = displayLibraryUserDTO.LastName
             };
         }
     }
