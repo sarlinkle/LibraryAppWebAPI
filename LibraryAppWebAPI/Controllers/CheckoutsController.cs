@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using LibraryAppWebAPI.Data;
 using LibraryAppWebAPI.Models;
+using LibraryAppWebAPI.DTOs;
 
 namespace LibraryAppWebAPI.Controllers
 {
@@ -23,16 +23,39 @@ namespace LibraryAppWebAPI.Controllers
 
         // GET: api/Checkouts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Checkout>>> GetCheckouts()
+        public async Task<ActionResult<IEnumerable<DisplayCheckoutDTO>>> GetCheckouts()
         {
-            return await _context.Checkouts.ToListAsync();
+            var checkouts = await _context.Checkouts
+                .Include(c => c.Books)
+                .Include(c => c.LibraryUser)
+                .Select(c =>
+                new DisplayCheckoutDTO()
+                {
+                    LibraryCardNumber = c.LibraryUser.LibraryCardNumber,
+                    BookTitles = c.Books.Select(c => c.Title).ToList(),
+                    DateBorrowed = c.DateBorrowed,
+                    DateDue = c.DateDue
+                }).ToListAsync();
+
+            return checkouts;
         }
 
         // GET: api/Checkouts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Checkout>> GetCheckout(int id)
+        public async Task<ActionResult<DisplayCheckoutDTO>> GetCheckout(int id)
         {
-            var checkout = await _context.Checkouts.FindAsync(id);
+            var checkout = await _context.Checkouts
+                .Include(c => c.Books)
+                .Include(c => c.LibraryUser)
+                .Where(c => c.Id == id)
+                .Select(c =>
+                new DisplayCheckoutDTO()
+                {
+                    LibraryCardNumber = c.LibraryUser.LibraryCardNumber,
+                    DateBorrowed = c.DateBorrowed,
+                    DateDue = c.DateDue,
+                    BookTitles = c.Books.Select(c => c.Title).ToList(),
+                }).FirstOrDefaultAsync();
 
             if (checkout == null)
             {
@@ -42,17 +65,90 @@ namespace LibraryAppWebAPI.Controllers
             return checkout;
         }
 
-        // PUT: api/Checkouts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCheckout(int id, Checkout checkout)
+        //// PUT: api/Checkouts/5
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutCheckout(int id, Checkout checkout)
+        //{
+        //    if (id != checkout.Id)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    _context.Entry(checkout).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!CheckoutExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return NoContent();
+        //}
+
+        // POST: api/Checkouts/borrow
+        [HttpPost("borrow")]
+        public async Task<ActionResult<Checkout>> CreateCheckout(CreateCheckoutDTO createCheckoutDTO)
         {
-            if (id != checkout.Id)
+            //var books = await _context.Books
+            //    .Select(b => b.Id).ToListAsync();
+
+            var books = await _context.Books
+                .Select(b =>
+                new Book()
+                {
+                    Id = 0,
+                    Title = b.Title,
+                    ISBN = b.ISBN,
+                    Authors = b.Authors,
+                    ReleaseDate = b.ReleaseDate
+                }).ToListAsync();
+
+            if (books == null)
             {
-                return BadRequest();
+                return NotFound("Book not found");
             }
 
-            _context.Entry(checkout).State = EntityState.Modified;
+            var libraryUser = await _context.LibraryUsers.FindAsync(createCheckoutDTO.LibraryUserId);
+            if (libraryUser == null)
+            {
+                return NotFound("Library user not found");
+            }
+
+            var checkout = new Checkout()
+            {
+                Id = 0,
+                LibraryUser = libraryUser,
+                Books = books,
+                DateBorrowed = DateTime.Now,
+                DateDue = DateTime.Now.AddDays(30),
+            };
+            _context.Checkouts.Add(checkout);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCheckout", new { id = checkout.Id }, checkout);
+        }
+
+        // PUT: api/Checkouts/return/5
+        [HttpPut("return/{id}")]
+        public async Task<IActionResult> CreateReturn(int id)
+        {
+            var checkout = await _context.Checkouts.FindAsync(id);
+            if (checkout == null) 
+            { 
+                return NotFound("Checkout not found"); 
+            }
+
+            checkout.DateReturned = DateTime.Now;
 
             try
             {
@@ -71,17 +167,6 @@ namespace LibraryAppWebAPI.Controllers
             }
 
             return NoContent();
-        }
-
-        // POST: api/Checkouts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Checkout>> PostCheckout(Checkout checkout)
-        {
-            _context.Checkouts.Add(checkout);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCheckout", new { id = checkout.Id }, checkout);
         }
 
         // DELETE: api/Checkouts/5

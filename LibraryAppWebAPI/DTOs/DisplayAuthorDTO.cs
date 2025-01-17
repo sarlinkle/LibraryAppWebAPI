@@ -6,6 +6,6 @@ namespace LibraryAppWebAPI.DTOs
     {
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
-        public required List<int> BookIds { get; set; } = new();
+        public required List<string> BookTitles { get; set; } = new();
     }
 }

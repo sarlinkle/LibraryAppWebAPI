@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using LibraryAppWebAPI.Data;
 using LibraryAppWebAPI.Models;
+using LibraryAppWebAPI.DTOs;
 
 namespace LibraryAppWebAPI.Controllers
 {
@@ -23,16 +23,31 @@ namespace LibraryAppWebAPI.Controllers
 
         // GET: api/LibraryUsers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LibraryUser>>> GetLibraryUsers()
+        public async Task<ActionResult<IEnumerable<DisplayLibraryUserDTO>>> GetLibraryUsers()
         {
-            return await _context.LibraryUsers.ToListAsync();
+            var libraryUsers = await _context.LibraryUsers
+                .Select(l => 
+                new DisplayLibraryUserDTO()
+                { 
+                    FullName = $"{l.FirstName} {l.LastName}",
+                    LibraryCardNumber = l.LibraryCardNumber,                   
+                }).ToListAsync();
+
+            return libraryUsers;
         }
 
         // GET: api/LibraryUsers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<LibraryUser>> GetLibraryUser(int id)
+        public async Task<ActionResult<DisplayLibraryUserDTO>> GetLibraryUser(int id)
         {
-            var libraryUser = await _context.LibraryUsers.FindAsync(id);
+            var libraryUser = await _context.LibraryUsers
+                .Where(l => l.Id == id)
+                .Select(l =>
+                new DisplayLibraryUserDTO()
+                {
+                    FullName = $"{l.FirstName} {l.LastName}",
+                    LibraryCardNumber = l.LibraryCardNumber,
+                }).FirstOrDefaultAsync();
 
             if (libraryUser == null)
             {
@@ -74,10 +89,10 @@ namespace LibraryAppWebAPI.Controllers
         }
 
         // POST: api/LibraryUsers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<LibraryUser>> PostLibraryUser(LibraryUser libraryUser)
+        public async Task<ActionResult<LibraryUser>> PostLibraryUser(CreateNewLibraryUserDTO createNewLibraryUserDTO)
         {
+            var libraryUser = createNewLibraryUserDTO.ToLibraryUser();
             _context.LibraryUsers.Add(libraryUser);
             await _context.SaveChangesAsync();
 

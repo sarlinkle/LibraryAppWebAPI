@@ -4,8 +4,9 @@ namespace LibraryAppWebAPI.DTOs
 {
     public class DisplayCheckoutDTO
     {
-        public required string LibraryCardNumber { get; set; }
-        public required List<Book> Books { get; set; }
-        public DateTime DateBorrowed { get; set; }
+        public required int LibraryCardNumber { get; set; }
+        public required List<string> BookTitles { get; set; } = new();
+        public required DateTime DateBorrowed { get; set; }
+        public required DateTime DateDue { get; set; }
     }
 }

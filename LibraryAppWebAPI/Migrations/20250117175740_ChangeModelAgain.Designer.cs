@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryAppWebAPI.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    [Migration("20250109160208_ChangeModel")]
-    partial class ChangeModel
+    [Migration("20250117175740_ChangeModelAgain")]
+    partial class ChangeModelAgain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,6 +69,9 @@ namespace LibraryAppWebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CheckoutId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ISBN")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -85,6 +88,8 @@ namespace LibraryAppWebAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CheckoutId");
+
                     b.ToTable("Books");
                 });
 
@@ -96,10 +101,10 @@ namespace LibraryAppWebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("DateBorrowed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateDue")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateReturned")
@@ -109,8 +114,6 @@ namespace LibraryAppWebAPI.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BookId");
 
                     b.HasIndex("LibraryUserId");
 
@@ -133,9 +136,8 @@ namespace LibraryAppWebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LibraryCardNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("LibraryCardNumber")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -157,23 +159,27 @@ namespace LibraryAppWebAPI.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("LibraryAppWebAPI.Models.Book", b =>
+                {
+                    b.HasOne("LibraryAppWebAPI.Models.Checkout", null)
+                        .WithMany("Books")
+                        .HasForeignKey("CheckoutId");
+                });
+
             modelBuilder.Entity("LibraryAppWebAPI.Models.Checkout", b =>
                 {
-                    b.HasOne("LibraryAppWebAPI.Models.Book", "Book")
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("LibraryAppWebAPI.Models.LibraryUser", "LibraryUser")
                         .WithMany("Checkouts")
                         .HasForeignKey("LibraryUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Book");
-
                     b.Navigation("LibraryUser");
+                });
+
+            modelBuilder.Entity("LibraryAppWebAPI.Models.Checkout", b =>
+                {
+                    b.Navigation("Books");
                 });
 
             modelBuilder.Entity("LibraryAppWebAPI.Models.LibraryUser", b =>

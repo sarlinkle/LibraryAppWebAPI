@@ -4,7 +4,7 @@
     {
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
-
-        //public required List<int> BookIds { get; set; } = new();
+        
+        //public List<int>? BookIds { get; set; } = new();
     }
 }

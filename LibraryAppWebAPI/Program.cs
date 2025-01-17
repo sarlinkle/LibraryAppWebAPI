@@ -1,9 +1,8 @@
-
-using LibraryAppWebAPI.Data;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
+using LibraryAppWebAPI.Models;
 
 namespace LibraryAppWebAPI
 {

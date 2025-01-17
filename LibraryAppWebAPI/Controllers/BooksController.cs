@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using LibraryAppWebAPI.Data;
 using LibraryAppWebAPI.Models;
 using LibraryAppWebAPI.DTOs;
 
@@ -24,68 +23,133 @@ namespace LibraryAppWebAPI.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DisplayBookDTO>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<DisplayDetailedBookInfoDTO>>> GetBooks()
         {
-            IEnumerable<Book> books = await _context.Books.ToListAsync();
-            var bookDTOs = books.Select(book => new DisplayBookDTO() { Title = book.Title, ReleaseDate = new DateOnly(), ISBN = book.ISBN, AuthorIds = [] }).ToList();
-            return bookDTOs;
+            var books = await _context.Books
+                .Include(b => b.Authors)
+                .Select(b =>
+            new DisplayDetailedBookInfoDTO()
+            { 
+                Title = b.Title,
+                ISBN = b.ISBN,
+                AuthorNames = b.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToList(),
+                ReleaseDate = b.ReleaseDate,
+            }).ToListAsync();
+
+             return books;
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<DisplayBookDTO>> GetBook(int id)
+        public async Task<ActionResult<DisplayDetailedBookInfoDTO>> GetBook(int id)
         {
-            var book = await _context.Books.ToListAsync();
-            var bookDTO = book.Select(book => new DisplayBookDTO() { Title = book.Title, ReleaseDate = new DateOnly(), ISBN = book.ISBN, AuthorIds = [] }).Where(book.Id == id);
+            var book = await _context.Books
+                .Include(b => b.Authors)
+                .Where(b => b.Id == id)
+                .Select(b =>
+            new DisplayDetailedBookInfoDTO()
+            {
+                Title = b.Title,
+                ISBN = b.ISBN,
+                AuthorNames = b.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToList(),
+                ReleaseDate = b.ReleaseDate,
+            }).FirstOrDefaultAsync();
 
-            if (bookDTO == null)
+            if (book == null)
             {
                 return NotFound();
             }
-
-            return bookDTO;
+            return book;
         }
 
-        // PUT: api/Books/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, CreateReturnDTO book)
+        // GET: api/Books/searchTitle/searchTerm
+        [HttpGet("searchBookTitle/{searchTerm}")]
+        public async Task<ActionResult<IEnumerable<DisplayDetailedBookInfoDTO>>> SearchBookTitle(string searchTerm)
         {
-            if (id != book.Id)
+            if (string.IsNullOrEmpty(searchTerm))
             {
                 return BadRequest();
             }
 
-            _context.Entry(book).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BookExists(id))
+            var books = await _context.Books
+                .Include(b => b.Authors)
+                .Where(b => b.Title.ToLower().Contains(searchTerm))
+                .Select(b =>
+                new DisplayDetailedBookInfoDTO()
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    Title = b.Title,
+                    ISBN = b.ISBN,
+                    AuthorNames = b.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToList(),
+                    ReleaseDate = b.ReleaseDate,
+                }).ToListAsync();
 
-            return NoContent();
+            if (books == null)
+            {
+                return NotFound();
+            }
+            return books;
         }
+
+        // GET: api/Books/searchISBN/searchTerm
+        [HttpGet("searchISBN/{searchTerm}")]
+        public async Task<ActionResult<IEnumerable<DisplayDetailedBookInfoDTO>>> SearchBookISBN(string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return BadRequest();
+            }
+
+            var books = await _context.Books.Search(searchTerm).ToListAsync();
+
+            if (books == null)
+            {
+                return NotFound();
+            }
+            return books;
+        }
+
+        //// PUT: api/Books/5
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutBook(int id, Book book)
+        //{
+        //    if (id != book.Id)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    _context.Entry(book).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!BookExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return NoContent();
+        //}
 
         // POST: api/Books
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(CreateBookDTO createBookDTO)
         {
-            var book = createBookDTO.ToBook();
+            //TO do - get the authors
+            var book = createBookDTO.ToBook(new List<Author>());
 
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBook", new { id = book.Id }, book);
+            var response = CreatedAtAction("GetBook", new { id = book.Id }, book);
+            return response;
         }
 
         // DELETE: api/Books/5

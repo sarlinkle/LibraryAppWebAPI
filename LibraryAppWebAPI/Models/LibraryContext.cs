@@ -1,10 +1,9 @@
-﻿using LibraryAppWebAPI.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace LibraryAppWebAPI.Data
+namespace LibraryAppWebAPI.Models
 {
     public class LibraryDbContext : DbContext
     {
