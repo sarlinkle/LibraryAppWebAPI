@@ -96,7 +96,7 @@ namespace LibraryAppWebAPI.Controllers
         //}
 
         // POST: api/Checkouts/borrow
-        [HttpPost("borrow")]
+        [HttpPost("Borrow")]
         public async Task<ActionResult<Checkout>> CreateCheckout(CreateCheckoutDTO createCheckoutDTO)
         {
             //var books = await _context.Books
@@ -139,7 +139,7 @@ namespace LibraryAppWebAPI.Controllers
         }
 
         // PUT: api/Checkouts/return/5
-        [HttpPut("return/{id}")]
+        [HttpPut("Return/{id}")]
         public async Task<IActionResult> CreateReturn(int id)
         {
             var checkout = await _context.Checkouts.FindAsync(id);
