@@ -1,5 +1,7 @@
-﻿using LibraryAppWebAPI.Models;
+﻿using LibraryAppWebAPI.Controllers;
+using LibraryAppWebAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace LibraryAppWebAPI.DTOs
 {
@@ -30,6 +32,41 @@ namespace LibraryAppWebAPI.DTOs
             return libraryUser;
         }
 
+        public static Checkout ToCheckout(this CreateCheckoutDTO createCheckoutDTO, List<Book> books, LibraryUser libraryUser)
+        {
+            var checkout = new Checkout()
+            {
+                Id = 0,
+                Books = books,
+                LibraryUser = libraryUser,
+                DateBorrowed = DateTime.Now,
+                DateDue = DateTime.Now.AddDays(30)
+            };
+
+            return checkout;
+        }
+
+        public static Checkout ToCheckout(this DisplayCheckoutDTO displayCheckoutDTO, List<Book> books, LibraryUser libraryUser)
+        {
+            var checkout = new Checkout()
+            {
+                Id = 0,
+                Books = books,
+                LibraryUser = libraryUser,
+                DateBorrowed = displayCheckoutDTO.DateBorrowed,
+                DateDue = displayCheckoutDTO.DateDue
+            };
+
+            return checkout;
+        }
+
+        //public static IQueryable<DisplayCheckoutDTO> Filter(this IQueryable<Checkout> query)
+        //{
+        //    return query.Include(c => c.Books)
+        //   .Include(c => c.LibraryUser)
+        //   .Select(c => c.ToCheckout(c.Books, c.LibraryUser));
+        //}
+
         public static DisplayDetailedBookInfoDTO ToDetailedBook(this Book book)
         {
             var detailedBook = new DisplayDetailedBookInfoDTO()
@@ -37,11 +74,12 @@ namespace LibraryAppWebAPI.DTOs
                 Title = book.Title,
                 ISBN = book.ISBN,
                 AuthorNames = book.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToList(),
-                ReleaseDate = book.ReleaseDate,
+                ReleaseYear = book.ReleaseDate.Year,
             };
 
             return detailedBook;
         }
+
         public static IQueryable<DisplayDetailedBookInfoDTO> Search(this IQueryable<Book> query, string searchTerm)
         {
             return query.Include(b => b.Authors)

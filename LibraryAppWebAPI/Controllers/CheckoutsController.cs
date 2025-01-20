@@ -95,14 +95,17 @@ namespace LibraryAppWebAPI.Controllers
         //    return NoContent();
         //}
 
-        // POST: api/Checkouts/borrow
-        [HttpPost("Borrow")]
-        public async Task<ActionResult<Checkout>> CreateCheckout(CreateCheckoutDTO createCheckoutDTO)
+        // POST: api/Checkouts/borrow/2
+        [HttpPost("Borrow/{id}")]
+        public async Task<ActionResult<Checkout>> CreateCheckout(CreateCheckoutDTO createCheckoutDTO, int id)
         {
             //var books = await _context.Books
             //    .Select(b => b.Id).ToListAsync();
 
-            var books = await _context.Books
+            //Todo - fixa lista of Id
+
+            var book = await _context.Books
+                .Where(b => b.Id == id)
                 .Select(b =>
                 new Book()
                 {
@@ -113,7 +116,7 @@ namespace LibraryAppWebAPI.Controllers
                     ReleaseDate = b.ReleaseDate
                 }).ToListAsync();
 
-            if (books == null)
+            if (book == null)
             {
                 return NotFound("Book not found");
             }
@@ -128,7 +131,7 @@ namespace LibraryAppWebAPI.Controllers
             {
                 Id = 0,
                 LibraryUser = libraryUser,
-                Books = books,
+                Books = book,
                 DateBorrowed = DateTime.Now,
                 DateDue = DateTime.Now.AddDays(30),
             };

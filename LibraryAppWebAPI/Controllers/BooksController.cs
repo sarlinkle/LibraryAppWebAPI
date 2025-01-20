@@ -33,7 +33,7 @@ namespace LibraryAppWebAPI.Controllers
                 Title = b.Title,
                 ISBN = b.ISBN,
                 AuthorNames = b.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToList(),
-                ReleaseDate = b.ReleaseDate,
+                ReleaseYear = b.ReleaseDate.Year,
             }).ToListAsync();
 
              return books;
@@ -52,7 +52,7 @@ namespace LibraryAppWebAPI.Controllers
                 Title = b.Title,
                 ISBN = b.ISBN,
                 AuthorNames = b.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToList(),
-                ReleaseDate = b.ReleaseDate,
+                ReleaseYear = b.ReleaseDate.Year,
             }).FirstOrDefaultAsync();
 
             if (book == null)
@@ -80,7 +80,7 @@ namespace LibraryAppWebAPI.Controllers
                     Title = b.Title,
                     ISBN = b.ISBN,
                     AuthorNames = b.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToList(),
-                    ReleaseDate = b.ReleaseDate,
+                    ReleaseYear = b.ReleaseDate.Year,
                 }).ToListAsync();
 
             if (books == null)

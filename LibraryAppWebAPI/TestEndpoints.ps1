@@ -133,6 +133,47 @@ $json = '{
 $response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
 $response | Format-Table
 
+### ------------Post another author
+
+Write-Host "`nCreate another Author"
+
+$httpMethod = "Post"   ### "Get", "Post", "Put", "Delete"
+
+$endPoint = "$baseUrl/api/Authors"
+
+$json = '{
+  "firstName": "Gilles",
+  "lastName": "Deleuze"
+}'
+
+$response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
+$response | Format-Table
+
+
+### ------------Post another author
+
+Write-Host "`nCreate another Author"
+
+$httpMethod = "Post"   ### "Get", "Post", "Put", "Delete"
+
+$endPoint = "$baseUrl/api/Authors"
+
+$json = '{
+  "firstName": "Felix",
+  "lastName": "Guattari"
+}'
+
+$response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
+$response | Format-Table
+
+
+Write-Host "`nQuery all Authors from Db"
+
+### ------------ Query all authors from the database
+$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM Authors"
+$sqlResult | Format-Table
+
+
 
 ### ------------Post a book
 
@@ -215,6 +256,40 @@ $json = '{
   "rating": "Mind blowing"
 }'
 
+$response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
+$response | Format-Table
+
+
+### ------------Post another book
+
+Write-Host "`nCreate another book"
+
+$httpMethod = "Post"   ### "Get", "Post", "Put", "Delete"
+
+$endPoint = "$baseUrl/api/Books"
+
+$json = '{
+  "title": "A Thousand Plateaus",
+  "isbn": "55555553302",
+  "releaseYear": 1980,
+  "authorIds": [
+    4, 5
+  ],
+  "rating": ""
+}'
+
+$response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
+$response | Format-Table
+
+
+
+Write-Host "`nQuery all books from Db"
+
+### ------------ Query all books from the database
+$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM Books"
+$sqlResult | Format-Table
+
+
 
 ### ------------Post a library user
 
@@ -249,15 +324,43 @@ $response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -Co
 $response | Format-Table
 
 
-### ------------ Query all books from the database
-$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM Books"
+Write-Host "`nQuery all library users from Db"
+
+### ------------ Query all library users from the database
+$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM LibraryUsers"
 $sqlResult | Format-Table
 
 
+### ------------Get all books
 
-### ------------ Query a book from the database by Id
-$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM Books WHERE Id = 1"
-$sqlResult | Format-Table
+Write-Host "`nGet all books from the Db"
+
+$httpMethod = "Get"   ### "Get", "Post", "Put", "Delete"
+
+$endPoint = "$baseUrl/api/Books"
+
+$json = '{
+}'
+
+$response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
+$response | Format-Table
+
+
+
+### ------------Get a book by Id
+
+Write-Host "`nGet a book from the Db by Id"
+
+$httpMethod = "Get"   ### "Get", "Post", "Put", "Delete"
+
+$endPoint = "$baseUrl/api/Books/2"
+
+$json = '{
+  "Id": 2
+}'
+
+$response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
+$response | Format-Table
 
 
 ### ------------Post a book loan
@@ -271,12 +374,13 @@ $endPoint = "$baseUrl/api/Checkouts/Borrow"
 $json = '{
   "libraryUserId": 1,
   "bookIds": [
-    1, 2, 4
+    4
   ]
 }'
 
 $response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
 $response | Format-Table
+
 
 
 ### ------------Post a book loan
@@ -290,12 +394,20 @@ $endPoint = "$baseUrl/api/Checkouts/Borrow"
 $json = '{
   "libraryUserId": 2,
   "bookIds": [
-    3, 4
+    3
   ]
 }'
 
 $response = Invoke-RestMethod -Uri $endPoint -Method $httpMethod -Body $json -ContentType "application/json"
 $response | Format-Table
+
+
+Write-Host "`nQuery all checkouts from Db"
+
+### ------------ Query all checkouts from the database
+$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM Checkouts"
+$sqlResult | Format-Table
+
 
 ### ------------Put a book return
 
@@ -303,11 +415,19 @@ Write-Host "`nCreate a book return"
 
 $httpMethod = "Put"   ### "Get", "Post", "Put", "Delete"
 
-$endPoint = "$baseUrl/api/Checkouts/Return/{id}"
+$endPoint = "$baseUrl/api/Checkouts/Return/1"
 
 $json = '{
-  "id": 2
+  "id": 1
 }'
+
+
+Write-Host "`nQuery all checkouts from Db"
+
+
+### ------------ Query all checkouts from the database
+$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM Checkouts"
+$sqlResult | Format-Table
 
 
 ### ------------Delete a library user
@@ -316,11 +436,17 @@ Write-Host "`nDelete a library user"
 
 $httpMethod = "Delete"   ### "Get", "Post", "Put", "Delete"
 
-$endPoint = "$baseUrl/api/LibraryUsers/{id}"
+$endPoint = "$baseUrl/api/LibraryUsers/2"
 
 $json = '{
   "id": 2
 }'
+
+Write-Host "`nQuery all library users from Db"
+
+### ------------ Query all library users from the database
+$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM LibraryUsers"
+$sqlResult | Format-Table
 
 
 ### ------------Delete a book
@@ -329,23 +455,41 @@ Write-Host "`nDelete a book"
 
 $httpMethod = "Delete"   ### "Get", "Post", "Put", "Delete"
 
-$endPoint = "$baseUrl/api/Books/{id}"
+$endPoint = "$baseUrl/api/Books/4"
 
 $json = '{
-  "id": 2
+  "id": 4
 }'
 
-### ------------Delete a book
+Write-Host "`nQuery all books from Db"
+
+### ------------ Query all books from the database
+$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM Books"
+$sqlResult | Format-Table
+
+
+
+### ------------Delete an author
 
 Write-Host "`nDelete an author"
 
 $httpMethod = "Delete"   ### "Get", "Post", "Put", "Delete"
 
-$endPoint = "$baseUrl/api/Authors/{id}"
+$endPoint = "$baseUrl/api/Authors/3"
 
 $json = '{
   "id": 3
 }'
+
+Write-Host "`nQuery all authors from Db"
+
+### ------------ Query all authors from the database
+$sqlResult = Invoke-Sqlcmd -ConnectionString $connectionString -Query "Select * FROM Authors"
+$sqlResult | Format-Table
+
+
+
+Write-Host "`nScript finished"
 
 
 ###############
